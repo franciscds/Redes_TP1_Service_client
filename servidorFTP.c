@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 
 int main(int argc, char** argv) {
-  int server_socket, client_socket, bytes, v6only;
+  int server_socket, client_socket, bytes, v6only,flag=1;
   char buffer[128], client_ip[150];
   unsigned int i, size;
 
@@ -72,20 +72,25 @@ int main(int argc, char** argv) {
       printf("[TCP Server] Client [%s:%d] Connected!\n\n", client_ip, ntohs(client_addr.sin6_port));
     }
     //abre arq
+    FILE* arq;
     while(1) {
-      if(flag = 1){
-      memset(&buffer, 0, sizeof(buffer));
-      bytes = read(client_socket, buffer, 128);
-      arq = AbreArquivo(buffer);
-      flag = 0;
+      if(flag == 1){
+          memset(&buffer, 0, sizeof(buffer));
+          bytes = read(client_socket, buffer, 128);
+          //arq = AbreArquivo(buffer,strlen(buffer));
+          arq = fopen(buffer,"r");
+          if(arq == NULL)exit(1);
+          flag = 0;
+            printf("\n\n[TCP server]: Arquivo aberto: %s\n",buffer);
       }
       printf("[TCP Server] Client [%s:%d] Arquivo aberto:\"%s\"\n", client_ip, ntohs(client_addr.sin6_port), buffer);
 
       printf("[TCP Server] Response: %s\n\n", buffer);
-      buffer = leArquivo(arq);
-      bytes = send(client_socket, buffer, sizeof(buffer), 0);
+      //buffer = leArquivo(arq);
+       while(fgets(buffer,strlen(buffer),arq)!= EOF);
+       bytes = send(client_socket, buffer, sizeof(buffer), 0);
     }
-    fclose(arq)
+    fclose(arq);
 
     printf("[TCP Server] Client [%s:%d] Connection Closed.\n\n", client_ip, ntohs(client_addr.sin6_port));
     close(client_socket); // Releasing the socket for the client
