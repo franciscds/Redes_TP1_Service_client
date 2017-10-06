@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     // Se criar o socket, tenta realizar a conexão:
     if(connect(client_socket, item->ai_addr, item->ai_addrlen) == -1) {
       close(client_socket); // Não deu certo a conexão! Fecha o socket criado e tenta de novo.
-      printf("[TCP Multi Client]: connect error\n");
+      printf("[TCP Client]: connect error\n");
       continue;
     }
     break;
@@ -70,9 +70,17 @@ int main(int argc, char** argv) {
 // A partir deste ponto, estamos conectados!
 // ------------------------------------------------------------
 
-  printf("[TCP Multi Client] CONNECTED! Send something to the server.\n");
-  bytes = strlen(argv[3] );
+  printf("[TCP Client] CONNECTED! Envie Alguma coisa.\n");
+//envia nome do arquivo
+  bytes = strlen(argv[3]);
   write(client_socket, argv[3], bytes); // Envia a mensagem nome_arquivo
+  //espera confirmação de recebimento de nome
+  if(bytes=recv(client_socket,buffer,sizeof(buffer))){
+	write(client_socket, argv[4], bytes)//envia tamanho buffer cliente
+}
+//cria arquivo de saida
+  FILE* arq_saida = fopen("saida",w);
+
   while(1) {
     memset(&buffer, 0, sizeof(buffer));
   //  printf("[TCP Multi Client] Message: ");
@@ -84,11 +92,13 @@ int main(int argc, char** argv) {
 
     printf("\n[TCP Multi Client] Esperando...");
     bytes = recv(client_socket, buffer, sizeof(buffer), 0);  // Esperando por uma resposta do servidor
-    if(bytes == 0){
+    if(bytes == 0 ){
         printf("\n[TCP Client] Mensagem encerrada!");
         break;
-    }  // Teste pra sair com o "q"
+    } 
     printf("\n[TCP Multi Client] Mensagem recebida: \"%s\"\n\n", buffer);
+//escreve_arq(arq_saida,buffer);
+    fwrite(buffer,strlen(buffer),arq_saida);
   }
   printf("\n[TCP Client] Fechando conexão...\n");
   close(client_socket); // Releasing the socket.
