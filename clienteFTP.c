@@ -11,11 +11,11 @@ int main(int argc, char** argv) {
   int client_socket, bytes, rv;
   char buffer[128];
 
-  // Esta é a nova estrutura que vamos utilizar!
   struct addrinfo hints, *list, *item;
 
   /* Checking the arguments */
-  if(argc != 3) {
+  if(argc != 5
+) {
     printf("\n[TCP Client] Argument error.\n\n");
     exit(1);
   }
@@ -70,21 +70,24 @@ int main(int argc, char** argv) {
 // A partir deste ponto, estamos conectados!
 // ------------------------------------------------------------
 
-  printf("[TCP Multi Client] CONNECTED! Send something to the server.\nType 'q' to quit.\n");
-  bytes = strlen(nome_arquivo);
-  write(client_socket, argv[3], bytes); // Envia a mensagemnome_arquivo
+  printf("[TCP Multi Client] CONNECTED! Send something to the server.\n");
+  bytes = strlen(argv[3] );
+  write(client_socket, argv[3], bytes); // Envia a mensagem nome_arquivo
   while(1) {
     memset(&buffer, 0, sizeof(buffer));
   //  printf("[TCP Multi Client] Message: ");
-  //  fgets(buffer, 128, stdin); // Lê a mensagem
+  //  fgets(buffer, 128, stdin); 
+  //  Lê a mensagem
   //  bytes = strlen(buffer);
   //  buffer[--bytes] = '\0';
-
   //  write(client_socket, buffer, bytes); // Envia a mensagem
 
     printf("\n[TCP Multi Client] Esperando...");
     bytes = recv(client_socket, buffer, sizeof(buffer), 0);  // Esperando por uma resposta do servidor
-    if(bytes == 0) break; // Teste pra sair com o "q"
+    if(bytes == 0){
+        printf("\n[TCP Client] Mensagem encerrada!");
+        break;
+    }  // Teste pra sair com o "q"
     printf("\n[TCP Multi Client] Mensagem recebida: \"%s\"\n\n", buffer);
   }
   printf("\n[TCP Client] Fechando conexão...\n");
