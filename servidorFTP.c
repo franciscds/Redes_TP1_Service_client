@@ -71,15 +71,31 @@ int main(int argc, char** argv) {
     if(inet_ntop(AF_INET6, &client_addr.sin6_addr, client_ip, sizeof(client_ip))) {
       printf("[TCP Server] Client [%s:%d] Connected!\n\n", client_ip, ntohs(client_addr.sin6_port));
     }
+    int buffer_server = atoi(argv[2]);
     //abre arq
     FILE* arq;
+    //recebe nome arquivo
+    memset(&buffer, 0, sizeof(buffer));
+    recv(client_socket, buffer, sizeof(buffer), 0);
+    //recebe tamanho buffer
+    memset(&buffer, 0, sizeof(buffer));
+    recv(client_socket, buffer, sizeof(buffer), 0)
+      int buffer_cliente = atoy=i(buffer);
+    //compara tamanhos de buffer
+     if(buffer_cliente > buffer_server){
+       continue;
+     }
+    else{
+      TAM_BUFFER = buffer_server;
+        }
+    arq = fopen(buffer,"r");
+       if(arq == NULL)exit(1);
     while(1) {
       if(flag == 1){
           memset(&buffer, 0, sizeof(buffer));
           bytes = read(client_socket, buffer, 128);
           //arq = AbreArquivo(buffer,strlen(buffer));
-          arq = fopen(buffer,"r");
-          if(arq == NULL)exit(1);
+          
           flag = 0;
             printf("\n\n[TCP server]: Arquivo aberto: %s\n",buffer);
       }
