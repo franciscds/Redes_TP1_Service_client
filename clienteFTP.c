@@ -73,31 +73,20 @@ int main(int argc, char** argv) {
   printf("[TCP Client] CONNECTED! Envie Alguma coisa.\n");
 //envia nome do arquivo
   bytes = strlen(argv[3]);
-  write(client_socket, argv[3], bytes); // Envia a mensagem nome_arquivo
-  //espera confirmação de recebimento de nome
-  if(bytes=recv(client_socket,buffer,sizeof(buffer))){
-	write(client_socket, argv[4], bytes)//envia tamanho buffer cliente
-}
+  write(client_socket, argv[3], bytes); // Envia a mensagem nome_arquivo  
+  write(client_socket, argv[4], bytes)//envia tamanho buffer cliente
+  
 //cria arquivo de saida
   FILE* arq_saida = fopen("saida",w);
 
-  while(1) {
+  while(bytes >1) {
     memset(&buffer, 0, sizeof(buffer));
-  //  printf("[TCP Multi Client] Message: ");
-  //  fgets(buffer, 128, stdin); 
-  //  Lê a mensagem
-  //  bytes = strlen(buffer);
   //  buffer[--bytes] = '\0';
-  //  write(client_socket, buffer, bytes); // Envia a mensagem
-
     printf("\n[TCP Multi Client] Esperando...");
     bytes = recv(client_socket, buffer, sizeof(buffer), 0);  // Esperando por uma resposta do servidor
-    if(bytes == 0 ){
-        printf("\n[TCP Client] Mensagem encerrada!");
-        break;
-    } 
+
     printf("\n[TCP Multi Client] Mensagem recebida: \"%s\"\n\n", buffer);
-//escreve_arq(arq_saida,buffer);
+    //escreve_arq(arq_saida,buffer);
     fwrite(buffer,strlen(buffer),arq_saida);
   }
   printf("\n[TCP Client] Fechando conexão...\n");
