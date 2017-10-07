@@ -9,16 +9,17 @@
 
 int main(int argc, char** argv) {
   int client_socket, bytes, rv;
-  char buffer[128];
+ 
 
   struct addrinfo hints, *list, *item;
 
   /* Checking the arguments */
-  if(argc != 5
-) {
+  if(argc != 5) {
     printf("\n[TCP Client] Argument error.\n\n");
     exit(1);
   }
+  buffer_cliente = atoi(argv[4]);
+  char buffer[buffer_cliente];
 
 // ------------------------------------------------------------
 // ------------------------------------------------------------
@@ -74,21 +75,18 @@ int main(int argc, char** argv) {
 //envia nome do arquivo
   bytes = strlen(argv[3]);
   write(client_socket, argv[3], bytes); // Envia a mensagem nome_arquivo  
-  write(client_socket, argv[4], bytes)//envia tamanho buffer cliente
-  
+  write(client_socket, argv[4], bytes);//envia tamanho buffer cliente
+ 
 //cria arquivo de saida
   FILE* arq_saida = fopen("saida",w);
 
   while(bytes >1) {
     memset(&buffer, 0, sizeof(buffer));
-  //  buffer[--bytes] = '\0';
-    printf("\n[TCP Multi Client] Esperando...");
+    buffer[--bytes] = '\0';
     bytes = recv(client_socket, buffer, sizeof(buffer), 0);  // Esperando por uma resposta do servidor
-
-    printf("\n[TCP Multi Client] Mensagem recebida: \"%s\"\n\n", buffer);
-    //escreve_arq(arq_saida,buffer);
     fwrite(buffer,strlen(buffer),arq_saida);
   }
+  fclose(arq);
   printf("\n[TCP Client] Fechando conexão...\n");
   close(client_socket); // Releasing the socket.
   freeaddrinfo(list); // liberando a memória!!
