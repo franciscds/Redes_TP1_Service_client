@@ -9,27 +9,16 @@
 
 int main(int argc, char** argv) {
   int client_socket, bytes, rv;
- 
+  char buffer[128];
 
   struct addrinfo hints, *list, *item;
 
   /* Checking the arguments */
-  if(argc != 5) {
+  if(argc != 5
+) {
     printf("\n[TCP Client] Argument error.\n\n");
     exit(1);
   }
-  buffer_cliente = atoi(argv[4]);
-  char buffer[buffer_cliente];
-
-// ------------------------------------------------------------
-// ------------------------------------------------------------
-  // Neste ponto, usaremos a getaddrinfo para "traduzir"
-  // o que vier pelo argumento para um IPv4 ou IPv6.
-  // o argv[1] pode ser:
-
-  // um IPv4 puro, por exemplo: 127.0.0.1 (própria máquina), 201.12.43.12
-  // um IPv6 puro, por exemplo: ::1 (pŕopria máquina), 2001:db8:1::2
-  // um host, por exemplo: teste.com
 
   memset(&hints, 0, sizeof hints); // Enche de zeros na nova estrutura
   hints.ai_family = AF_UNSPEC;     // aceitar IPv4 ou IPv6
@@ -40,16 +29,6 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  // Essa função retorna uma lista de IPs. Por isso, é feito
-  // este laço de repetição tentando abrir o socket com cada item
-  // retornado. Se o socket for criado com sucesso e a conexão for
-  // bem sucedida, sai do laço.
-
-  // IMPORTANTE: Lembre-se que esta lista precisa ser "liberada"
-  // de volta, pois está usando memória RAM. Eu estou fazendo
-  // isso chamando a função "freeaddrinfo" lá no final do código.
-
-// ------------------------------------------------------------
    // Para cada item obtido da função....
   for(item = list; item != NULL; item = item->ai_next) {
     // Tenta criar o socket
@@ -73,21 +52,27 @@ int main(int argc, char** argv) {
 
   printf("[TCP Client] CONNECTED! Envie Alguma coisa.\n");
 //envia nome do arquivo
-  bytes = strlen(argv[3]);
-  write(client_socket, argv[3], bytes); // Envia a mensagem nome_arquivo  
-  write(client_socket, argv[4], bytes);//envia tamanho buffer cliente
- 
+  bytes = strlen(argv[3])+1;
+  send(client_socket, argv[3], bytes,0); // Envia a mensagem nome_arquivo  
+ // bytes = strlen(argv[4]);
+ // send(client_socket, argv[4], bytes,0);//envia tamanho buffer cliente
+  
 //cria arquivo de saida
-  FILE* arq_saida = fopen("saida",w);
+  FILE* arq_saida = fopen(argv[3],"wb");
 
   while(bytes >1) {
     memset(&buffer, 0, sizeof(buffer));
-    buffer[--bytes] = '\0';
+  //  buffer[--bytes] = '\0';
+    //printf("\n[TCP Multi Client] Esperando...");
     bytes = recv(client_socket, buffer, sizeof(buffer), 0);  // Esperando por uma resposta do servidor
-    fwrite(buffer,strlen(buffer),arq_saida);
+    conta_bytes_recebidos +=bytes;
+    //printf("\n[TCP Client] numero bytes: \"%d\"\n\n", bytes);
+    //escreve_arq(arq_saida,buffer);
+    fwrite(buffer,sizeof(char),bytes,arq_saida);
   }
-  fclose(arq);
   printf("\n[TCP Client] Fechando conexão...\n");
+//Fecha Tempo
+    
   close(client_socket); // Releasing the socket.
   freeaddrinfo(list); // liberando a memória!!
   return 0;
