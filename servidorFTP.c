@@ -10,20 +10,20 @@
 #include <arpa/inet.h>
 
 int main(int argc, char** argv) {
-  int server_socket, client_socket, bytes, v6only,flag=1,buffer_server=0,buffer_cliente=0;
+  int server_socket, client_socket, bytes, v6only,buffer_server=0,buffer_cliente=0,TAM_BUFFER=0;
   char client_ip[150];
   unsigned int i, size;
-
+  FILE* arq;
   /* New struct ! */
   struct sockaddr_in6 server_addr, client_addr;
 
   /* Checking the arguments */
-  if(argc != 2) {
+  if(argc != 3) {
     printf("\n[TCP Server] Argument error.\n\n");
     exit(1);
   }
   buffer_server = atoi(argv[2]);
-  char buffer[buffer_server];
+  char buffer_temp[buffer_server];
   /* Creating TCP socket */
   server_socket = socket(AF_INET6, SOCK_STREAM, 0);  // AF_INET6 --> IPv6, SOCK_STREAM --> TCP
   if (server_socket == -1) {
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 
   listen(server_socket, 5); // Transform the socket in an TCP listener, waiting for TCP connections.
 
-  while(1) {
+  //while(1) {
     // If a new client try to connect, ANOTHER socket is created just for it (client_socket).
     printf("[TCP Server] Waiting for clients...\n\n");
 
@@ -76,43 +76,51 @@ int main(int argc, char** argv) {
     //-------------------------------------------------------------------//
   
     //abre arq
-    FILE* arq;
     //recebe nome arquivo
-    memset(&buffer, 0, sizeof(buffer));
-    recv(client_socket, buffer, sizeof(buffer), 0);
+    //memset(&buffer_temp, 0, sizeof(buffer_temp));
+    char byte=0;
+    char nome_temp[1000];
+    int cont =0;
+    int tam_nome_arquivo=0;
+    do{
+       recv(client_socket,&byte, sizeof(byte), 0);
+       nome_temp[cont] = byte;
+       cont++;
+        printf("\n\n[TCP server]: byte: %c\n",byte);
+
+    }while(byte != '\0');
     
-    //recebe tamanho buffer do cliente
-    memset(&buffer, 0, sizeof(buffer));
-    recv(client_socket, buffer, sizeof(buffer), 0)
-     
-     buffer_cliente = atoy=i(buffer);
+    tam_nome_arquivo = strlen(nome_temp)+1;
+    char nome_arquivo[tam_nome_arquivo];
+    strcpy(nome_arquivo,nome_temp);
+   
+    printf("\n\n[TCP server]: Nome Arquivo recebido: %s\n",nome_arquivo);
+
+   arq = fopen(nome_arquivo,"rb");
+       if(arq == NULL){
+            printf("erro ao abrir arquivo de saida");
+            exit(1);
+       } 
+      printf("\n\n[TCP server]: Arquivo aberto: %s\n",nome_arquivo);    //recebe tamanho buffer do cliente
+  
+    char buffer[buffer_server];
     
-    //compara tamanhos de buffer
-     if(buffer_cliente > buffer_server){
-       TAM_BUFFER = buffer_server
-     }
-      else{
-          TAM_BUFFER = buffer_cliente;
-          }
-    
-    arq = fopen(buffer,"r");
-       if(arq == NULL)exit(1);
-    printf("\n\n[TCP server]: Arquivo aberto: %s\n",buffer);
   //  printf("[TCP Server] Client [%s:%d] Arquivo aberto:\"%s\"\n", client_ip, ntohs(client_addr.s  in6_port), buffer);
-    memset(&buffer, 0, sizeof(buffer));
-    bytes = read(client_socket, buffer, strlen(buffer));
     
-    while(fgets(buffer,strlen(buffer),arq)!= EOF) 
-    {
-      
+    while(fread(buffer,sizeof(byte),buffer_server,arq)) 
+    { 
+               
+      printf("\n\n[TCP server]: Entrei: %s\n",buffer);
       printf("[TCP Server] Response: %s\n\n", buffer);
-      bytes = send(client_socket, buffer, sizeof(buffer), 0);
+      send(client_socket, buffer, sizeof(buffer), 0);
+      printf("[TCP Server] Tamanho Buffer: %d\n\n", strlen(buffer));
+      memset(&buffer,0, sizeof(buffer));
     }
     fclose(arq);
 
     printf("[TCP Server] Client [%s:%d] Connection Closed.\n\n", client_ip, ntohs(client_addr.sin6_port));
     close(client_socket); // Releasing the socket for the client
-  }
-  close(server_socket); // Releasing the socket of the server
+  //}
+  //close(server_socket); // Releasing the socket of the server
   return 0;
 }
